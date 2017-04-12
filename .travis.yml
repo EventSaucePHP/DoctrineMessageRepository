@@ -1,0 +1,23 @@
+language: php
+
+services:
+    - docker
+
+php:
+    - 7.1
+
+sudo: false
+
+install:
+    - travis_retry composer install
+
+before_script:
+    - docker-compose -f ./tests/docker-compose.yml up -d
+    - php tests/wait.php
+    - php tests/setup-schema.php
+
+script:
+    - vendor/bin/phpunit --coverage-text
+
+after_script:
+    - docker-compose -f ./tests/docker-compose.yml down

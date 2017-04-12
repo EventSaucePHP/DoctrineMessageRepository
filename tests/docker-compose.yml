@@ -1,0 +1,13 @@
+version: "2"
+services:
+    mysql:
+        restart: always
+        image: mysql/mysql-server:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: "root_password"
+            MYSQL_DATABASE: "domain_messages"
+            MYSQL_USER: "username"
+            MYSQL_PASSWORD: "password"
+            MYSQL_ROOT_HOST: "0.0.0.0"
+        ports:
+            - "3306:3306"
