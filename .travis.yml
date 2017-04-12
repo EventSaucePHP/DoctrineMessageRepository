@@ -9,10 +9,10 @@ php:
 sudo: false
 
 install:
+    - sudo service mysql stop
     - travis_retry composer install
 
 before_script:
-    - sudo service mysql stop
     - docker-compose -f ./tests/docker-compose.yml up -d
     - php tests/wait.php
     - php tests/setup-schema.php
