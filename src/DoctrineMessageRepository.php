@@ -9,10 +9,11 @@ use EventSauce\EventSourcing\MessageDispatcher;
 use EventSauce\EventSourcing\MessageRepository;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
 use Generator;
+use const JSON_PRETTY_PRINT;
 use function join;
 use function json_decode;
 use function json_encode;
-use const JSON_PRETTY_PRINT;
+use Ramsey\Uuid\Uuid;
 use function reset;
 
 class DoctrineMessageRepository implements MessageRepository
@@ -51,17 +52,20 @@ class DoctrineMessageRepository implements MessageRepository
             return;
         }
 
-        $sql = "INSERT INTO {$this->tableName} (`aggregate_root_id`, `time_of_recording`, `payload`) VALUES ";
+        $sql = "INSERT INTO {$this->tableName} (`event_id`, `aggregate_root_id`, `time_of_recording`, `payload`) VALUES ";
         $params = ['aggregate_root_id' => reset($messages)->aggregateRootId()->toString()];
         $values = [];
 
         foreach ($messages as $index => $message) {
             $payload = $this->serializer->serializeMessage($message);
-            $timeOfRecordingColumn = 'time_of_recording_'.$index;
-            $payloadColumn = 'payload_'.$index;
-            $values[] = "(:aggregate_root_id, :{$timeOfRecordingColumn}, :{$payloadColumn})";
+            $payload['metadata']['event_id'] = $payload['metadata']['event_id'] ?? $this->createEventId();
+            $eventIdColumn = 'event_id_' . $index;
+            $timeOfRecordingColumn = 'time_of_recording_' . $index;
+            $payloadColumn = 'payload_' . $index;
+            $values[] = "(:{$eventIdColumn}, :aggregate_root_id, :{$timeOfRecordingColumn}, :{$payloadColumn})";
             $params[$timeOfRecordingColumn] = $payload['timeOfRecording'];
             $params[$payloadColumn] = json_encode($payload, JSON_PRETTY_PRINT);
+            $params[$eventIdColumn] = $payload['metadata']['event_id'];
         }
 
         $sql .= join(', ', $values);
@@ -75,13 +79,18 @@ class DoctrineMessageRepository implements MessageRepository
 
     public function retrieveAll(AggregateRootId $id): Generator
     {
-        $sql = "SELECT payload FROM {$this->tableName} WHERE aggregate_root_id = :aggregate_root_id ORDER BY time_of_recording DESC";
+        $sql = "SELECT payload FROM {$this->tableName} WHERE aggregate_root_id = :aggregate_root_id ORDER BY time_of_recording ASC";
         $stm = $this->connection->prepare($sql);
         $stm->bindValue('aggregate_root_id', $id->toString());
         $stm->execute();
 
-        while($payload = $stm->fetchColumn()) {
+        while ($payload = $stm->fetchColumn()) {
             yield from $this->serializer->unserializePayload(json_decode($payload, true));
         }
+    }
+
+    private function createEventId(): string
+    {
+        return Uuid::uuid4()->toString();
     }
 }
