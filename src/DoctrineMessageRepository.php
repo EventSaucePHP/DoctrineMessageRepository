@@ -58,7 +58,10 @@ class DoctrineMessageRepository implements MessageRepository
 
         foreach ($messages as $index => $message) {
             $payload = $this->serializer->serializeMessage($message);
+            // Ensure there is an event id.
             $payload['metadata']['event_id'] = $payload['metadata']['event_id'] ?? $this->createEventId();
+            // In case the ID was generated in the previous step make sure the event contains the id.
+            $messages[$index] = $message->withMetadata('event_id', $payload['metadata']['event_id']);
             $eventIdColumn = 'event_id_' . $index;
             $timeOfRecordingColumn = 'time_of_recording_' . $index;
             $payloadColumn = 'payload_' . $index;
@@ -70,8 +73,7 @@ class DoctrineMessageRepository implements MessageRepository
 
         $sql .= join(', ', $values);
         $this->connection->beginTransaction();
-        $stm = $this->connection->prepare($sql);
-        $stm->execute($params);
+        $this->connection->prepare($sql)->execute($params);
         $this->connection->commit();
 
         $this->dispatcher->dispatch(...$messages);
