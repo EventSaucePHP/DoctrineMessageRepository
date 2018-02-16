@@ -14,8 +14,10 @@ install:
 before_script:
     - sudo service mysql stop
     - docker-compose -f ./tests/docker-compose.yml up -d
-    - php tests/wait.php
-    - php tests/setup-schema.php
+    - php tests/wait-for-connection.php mysql
+    - php tests/wait-for-connection.php pgsql
+    - php tests/setup-mysql-schema.php
+    - php tests/setup-pgsql-schema.php
 
 script:
     - vendor/bin/phpunit --coverage-text

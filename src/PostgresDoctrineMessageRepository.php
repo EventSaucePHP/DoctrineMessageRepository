@@ -15,7 +15,7 @@ use function json_decode;
 use function json_encode;
 use function reset;
 
-class DoctrineMessageRepository implements MessageRepository
+class PostgresDoctrineMessageRepository implements MessageRepository
 {
     /**
      * @var Connection
@@ -51,18 +51,20 @@ class DoctrineMessageRepository implements MessageRepository
             return;
         }
 
-        $sql = "INSERT INTO {$this->tableName} (`event_id`, `aggregate_root_id`, `time_of_recording`, `payload`) VALUES ";
+        $sql = "INSERT INTO {$this->tableName} (event_id, event_type, aggregate_root_id, time_of_recording, payload) VALUES ";
         $params = ['aggregate_root_id' => reset($messages)->aggregateRootId()->toString()];
         $values = [];
 
         foreach ($messages as $index => $message) {
             $payload = $this->serializer->serializeMessage($message);
             $eventIdColumn = 'event_id_' . $index;
+            $eventTypeColumn = 'event_type_' . $index;
             $timeOfRecordingColumn = 'time_of_recording_' . $index;
             $payloadColumn = 'payload_' . $index;
-            $values[] = "(:{$eventIdColumn}, :aggregate_root_id, :{$timeOfRecordingColumn}, :{$payloadColumn})";
+            $values[] = "(:{$eventIdColumn}, :{$eventTypeColumn}, :aggregate_root_id, :{$timeOfRecordingColumn}, :{$payloadColumn})";
             $params[$timeOfRecordingColumn] = $payload['timeOfRecording'];
             $params[$payloadColumn] = json_encode($payload, JSON_PRETTY_PRINT);
+            $params[$eventTypeColumn] = $payload['type'];
             $params[$eventIdColumn] = $payload['metadata']['event_id'];
         }
 

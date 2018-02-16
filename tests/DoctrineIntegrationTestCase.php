@@ -3,29 +3,41 @@
 namespace EventSauce\DoctrineMessageRepository\Tests;
 
 use Doctrine\DBAL\Connection;
-use EventSauce\DoctrineMessageRepository\DoctrineMessageRepository;
-use EventSauce\EventSourcing\AggregateRootId;
+use EventSauce\DoctrineMessageRepository\MysqlDoctrineMessageRepository;
 use EventSauce\EventSourcing\Message;
+use EventSauce\EventSourcing\MessageDispatcher;
+use EventSauce\EventSourcing\MessageRepository;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
-use EventSauce\EventSourcing\UuidAggregateRootId;
+use EventSauce\EventSourcing\Serialization\MessageSerializer;
 use EventSauce\EventSourcing\Time\TestClock;
-use function iterator_to_array;
+use EventSauce\EventSourcing\UuidAggregateRootId;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use function iterator_to_array;
+use function var_dump;
 
-class IntegrationTest extends TestCase
+abstract class DoctrineIntegrationTestCase extends TestCase
 {
+    abstract protected function connection(): Connection;
+
+    abstract protected function messageRepository(
+        Connection $connection,
+        MessageDispatcher $dispatcher,
+        MessageSerializer $serializer,
+        string $tableName
+    ): MessageRepository;
+
     /**
      * @test
      */
     public function it_works()
     {
         /** @var Connection $connection */
-        $connection = include __DIR__.'/connection.php';
+        $connection = $this->connection();
         $connection->exec('TRUNCATE TABLE domain_messages');
         $dispatcher = new CollectionMessageDispatcher();
         $serializer = new ConstructingMessageSerializer(UuidAggregateRootId::class);
-        $repository = new DoctrineMessageRepository($connection, $dispatcher, $serializer, 'domain_messages');
+        $repository = $this->messageRepository($connection, $dispatcher, $serializer, 'domain_messages');
         $aggregateRootId = UuidAggregateRootId::create();
 
         $repository->persist();
