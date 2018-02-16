@@ -13,7 +13,6 @@ use const JSON_PRETTY_PRINT;
 use function join;
 use function json_decode;
 use function json_encode;
-use Ramsey\Uuid\Uuid;
 use function reset;
 
 class DoctrineMessageRepository implements MessageRepository
@@ -58,10 +57,6 @@ class DoctrineMessageRepository implements MessageRepository
 
         foreach ($messages as $index => $message) {
             $payload = $this->serializer->serializeMessage($message);
-            // Ensure there is an event id.
-            $payload['metadata']['event_id'] = $payload['metadata']['event_id'] ?? $this->createEventId();
-            // In case the ID was generated in the previous step make sure the event contains the id.
-            $messages[$index] = $message->withMetadata('event_id', $payload['metadata']['event_id']);
             $eventIdColumn = 'event_id_' . $index;
             $timeOfRecordingColumn = 'time_of_recording_' . $index;
             $payloadColumn = 'payload_' . $index;
@@ -75,7 +70,6 @@ class DoctrineMessageRepository implements MessageRepository
         $this->connection->beginTransaction();
         $this->connection->prepare($sql)->execute($params);
         $this->connection->commit();
-
         $this->dispatcher->dispatch(...$messages);
     }
 
@@ -89,10 +83,5 @@ class DoctrineMessageRepository implements MessageRepository
         while ($payload = $stm->fetchColumn()) {
             yield from $this->serializer->unserializePayload(json_decode($payload, true));
         }
-    }
-
-    private function createEventId(): string
-    {
-        return Uuid::uuid4()->toString();
     }
 }
