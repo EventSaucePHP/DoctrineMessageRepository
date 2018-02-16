@@ -19,7 +19,7 @@ before_script:
     - php tests/wait-for-connection.php mysql
     - php tests/wait-for-connection.php pgsql
     - php tests/setup-mysql-schema.php
-    - php tests/setup-pgsql-schema.php
+    - php tests/setup-postgres-schema.php
 
 script:
     - vendor/bin/phpunit --coverage-text
