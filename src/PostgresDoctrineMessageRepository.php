@@ -2,16 +2,9 @@
 
 namespace EventSauce\DoctrineMessageRepository;
 
-use Doctrine\DBAL\Connection;
-use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;
-use EventSauce\EventSourcing\MessageDispatcher;
-use EventSauce\EventSourcing\MessageRepository;
-use EventSauce\EventSourcing\Serialization\MessageSerializer;
-use Generator;
 use const JSON_PRETTY_PRINT;
 use function join;
-use function json_decode;
 use function json_encode;
 use function reset;
 
