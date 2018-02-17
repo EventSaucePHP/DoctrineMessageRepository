@@ -15,36 +15,8 @@ use function json_decode;
 use function json_encode;
 use function reset;
 
-class PostgresDoctrineMessageRepository implements MessageRepository
+class PostgresDoctrineMessageRepository extends BaseDoctrineMessageRepository
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var MessageDispatcher
-     */
-    private $dispatcher;
-
-    /**
-     * @var MessageSerializer
-     */
-    private $serializer;
-
-    /**
-     * @var string
-     */
-    private $tableName;
-
-    public function __construct(Connection $connection, MessageDispatcher $dispatcher, MessageSerializer $serializer, string $tableName)
-    {
-        $this->connection = $connection;
-        $this->dispatcher = $dispatcher;
-        $this->serializer = $serializer;
-        $this->tableName = $tableName;
-    }
-
     public function persist(Message ... $messages)
     {
         if (count($messages) === 0) {
@@ -73,17 +45,5 @@ class PostgresDoctrineMessageRepository implements MessageRepository
         $this->connection->prepare($sql)->execute($params);
         $this->connection->commit();
         $this->dispatcher->dispatch(...$messages);
-    }
-
-    public function retrieveAll(AggregateRootId $id): Generator
-    {
-        $sql = "SELECT payload FROM {$this->tableName} WHERE aggregate_root_id = :aggregate_root_id ORDER BY time_of_recording ASC";
-        $stm = $this->connection->prepare($sql);
-        $stm->bindValue('aggregate_root_id', $id->toString());
-        $stm->execute();
-
-        while ($payload = $stm->fetchColumn()) {
-            yield from $this->serializer->unserializePayload(json_decode($payload, true));
-        }
     }
 }
