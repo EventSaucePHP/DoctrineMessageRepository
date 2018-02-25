@@ -17,10 +17,9 @@ class MysqlIntegrationTest extends DoctrineIntegrationTestCase
 
     protected function messageRepository(
         Connection $connection,
-        MessageDispatcher $dispatcher,
         MessageSerializer $serializer,
         string $tableName
     ): MessageRepository {
-        return new MysqlDoctrineMessageRepository($connection, $dispatcher, $serializer, $tableName);
+        return new MysqlDoctrineMessageRepository($connection, $serializer, $tableName);
     }
 }

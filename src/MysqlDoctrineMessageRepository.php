@@ -2,22 +2,22 @@
 
 namespace EventSauce\DoctrineMessageRepository;
 
+use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;
 use const JSON_PRETTY_PRINT;
 use function join;
 use function json_encode;
-use function reset;
 
 class MysqlDoctrineMessageRepository extends BaseDoctrineMessageRepository
 {
-    public function persist(Message ... $messages)
+    public function persist(AggregateRootId $id, Message ... $messages)
     {
         if (count($messages) === 0) {
             return;
         }
 
         $sql = "INSERT INTO {$this->tableName} (`event_id`, `event_type`, `aggregate_root_id`, `time_of_recording`, `payload`) VALUES ";
-        $params = ['aggregate_root_id' => reset($messages)->aggregateRootId()->toString()];
+        $params = ['aggregate_root_id' => $id->toString()];
         $values = [];
 
         foreach ($messages as $index => $message) {
@@ -37,6 +37,5 @@ class MysqlDoctrineMessageRepository extends BaseDoctrineMessageRepository
         $this->connection->beginTransaction();
         $this->connection->prepare($sql)->execute($params);
         $this->connection->commit();
-        $this->dispatcher->dispatch(...$messages);
     }
 }

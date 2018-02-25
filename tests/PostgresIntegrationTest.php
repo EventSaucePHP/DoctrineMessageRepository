@@ -17,10 +17,9 @@ class PostgresIntegrationTest extends DoctrineIntegrationTestCase
 
     protected function messageRepository(
         Connection $connection,
-        MessageDispatcher $dispatcher,
         MessageSerializer $serializer,
         string $tableName
     ): MessageRepository {
-        return new PostgresDoctrineMessageRepository($connection, $dispatcher, $serializer, $tableName);
+        return new PostgresDoctrineMessageRepository($connection, $serializer, $tableName);
     }
 }

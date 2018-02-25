@@ -19,11 +19,6 @@ abstract class BaseDoctrineMessageRepository implements MessageRepository
     protected $connection;
 
     /**
-     * @var MessageDispatcher
-     */
-    protected $dispatcher;
-
-    /**
      * @var MessageSerializer
      */
     protected $serializer;
@@ -33,10 +28,9 @@ abstract class BaseDoctrineMessageRepository implements MessageRepository
      */
     protected $tableName;
 
-    public function __construct(Connection $connection, MessageDispatcher $dispatcher, MessageSerializer $serializer, string $tableName)
+    public function __construct(Connection $connection, MessageSerializer $serializer, string $tableName)
     {
         $this->connection = $connection;
-        $this->dispatcher = $dispatcher;
         $this->serializer = $serializer;
         $this->tableName = $tableName;
     }

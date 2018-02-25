@@ -22,7 +22,6 @@ abstract class DoctrineIntegrationTestCase extends TestCase
 
     abstract protected function messageRepository(
         Connection $connection,
-        MessageDispatcher $dispatcher,
         MessageSerializer $serializer,
         string $tableName
     ): MessageRepository;
@@ -35,19 +34,17 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         /** @var Connection $connection */
         $connection = $this->connection();
         $connection->exec('TRUNCATE TABLE domain_messages');
-        $dispatcher = new CollectionMessageDispatcher();
         $serializer = new ConstructingMessageSerializer(UuidAggregateRootId::class);
-        $repository = $this->messageRepository($connection, $dispatcher, $serializer, 'domain_messages');
+        $repository = $this->messageRepository($connection, $serializer, 'domain_messages');
         $aggregateRootId = UuidAggregateRootId::create();
 
-        $repository->persist();
+        $repository->persist($aggregateRootId);
         $this->assertEmpty(iterator_to_array($repository->retrieveAll($aggregateRootId)));
 
         $eventId = Uuid::uuid4()->toString();
-        $message = new Message(new TestEvent($aggregateRootId, (new TestClock())->pointInTime()), ['event_id' => $eventId]);
-        $repository->persist($message);
+        $message = new Message($aggregateRootId, new TestEvent((new TestClock())->pointInTime()), ['event_id' => $eventId]);
+        $repository->persist($aggregateRootId, $message);
         $retrievedMessage = iterator_to_array($repository->retrieveAll($aggregateRootId), false)[0];
         $this->assertEquals($message, $retrievedMessage);
-        $this->assertEquals($message, $dispatcher->messages[0]);
     }
 }
