@@ -7,6 +7,7 @@ use EventSauce\EventSourcing\Message;
 use const JSON_PRETTY_PRINT;
 use function join;
 use function json_encode;
+use Ramsey\Uuid\Uuid;
 use function reset;
 
 class PostgresDoctrineMessageRepository extends BaseDoctrineMessageRepository
@@ -31,7 +32,7 @@ class PostgresDoctrineMessageRepository extends BaseDoctrineMessageRepository
             $params[$timeOfRecordingColumn] = $payload['timeOfRecording'];
             $params[$payloadColumn] = json_encode($payload, JSON_PRETTY_PRINT);
             $params[$eventTypeColumn] = $payload['type'];
-            $params[$eventIdColumn] = $payload['metadata']['event_id'];
+            $params[$eventIdColumn] = $payload['metadata']['event_id'] ?? Uuid::uuid4()->toString();
         }
 
         $sql .= join(', ', $values);
