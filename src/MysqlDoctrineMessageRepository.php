@@ -2,12 +2,11 @@
 
 namespace EventSauce\DoctrineMessageRepository;
 
-use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;
+use Ramsey\Uuid\Uuid;
 use const JSON_PRETTY_PRINT;
 use function join;
 use function json_encode;
-use Ramsey\Uuid\Uuid;
 
 class MysqlDoctrineMessageRepository extends BaseDoctrineMessageRepository
 {

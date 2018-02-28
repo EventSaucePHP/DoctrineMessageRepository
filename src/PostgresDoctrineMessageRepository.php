@@ -2,7 +2,6 @@
 
 namespace EventSauce\DoctrineMessageRepository;
 
-use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;
 use Ramsey\Uuid\Uuid;
 use const JSON_PRETTY_PRINT;
