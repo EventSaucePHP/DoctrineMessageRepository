@@ -5,10 +5,7 @@ namespace EventSauce\DoctrineMessageRepository\Tests;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use EventSauce\DoctrineMessageRepository\BaseDoctrineMessageRepository;
-use EventSauce\DoctrineMessageRepository\MysqlDoctrineMessageRepository;
 use EventSauce\EventSourcing\Message;
-use EventSauce\EventSourcing\MessageDispatcher;
-use EventSauce\EventSourcing\MessageRepository;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
 use EventSauce\EventSourcing\Time\TestClock;
@@ -41,7 +38,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
 
         $eventId = Uuid::uuid4()->toString();
         $message = new Message(new TestEvent((new TestClock())->pointInTime()), [
-            'event_id' => $eventId,
+            'event_id'          => $eventId,
             'aggregate_root_id' => $aggregateRootId,
         ]);
         $repository->persist($message);

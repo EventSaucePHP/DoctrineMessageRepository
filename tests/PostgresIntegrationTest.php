@@ -5,8 +5,6 @@ namespace EventSauce\DoctrineMessageRepository\Tests;
 use Doctrine\DBAL\Connection;
 use EventSauce\DoctrineMessageRepository\BaseDoctrineMessageRepository;
 use EventSauce\DoctrineMessageRepository\PostgresDoctrineMessageRepository;
-use EventSauce\EventSourcing\MessageDispatcher;
-use EventSauce\EventSourcing\MessageRepository;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
 
 class PostgresIntegrationTest extends DoctrineIntegrationTestCase
