@@ -5,6 +5,7 @@ namespace EventSauce\DoctrineMessageRepository\Tests;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use EventSauce\DoctrineMessageRepository\BaseDoctrineMessageRepository;
+use EventSauce\EventSourcing\DotSeparatedSnakeCaseInflector;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
@@ -30,7 +31,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
     public function it_works()
     {
         $connection = $this->doctrineConnection();
-        $serializer = new ConstructingMessageSerializer(UuidAggregateRootId::class);
+        $serializer = new ConstructingMessageSerializer();
         $repository = $this->messageRepository($connection, $serializer, 'domain_messages');
         $aggregateRootId = UuidAggregateRootId::create();
         $repository->persist();
@@ -39,7 +40,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $eventId = Uuid::uuid4()->toString();
         $message = new Message(new TestEvent((new TestClock())->pointInTime()), [
             'event_id'          => $eventId,
-            'aggregate_root_id' => $aggregateRootId,
+            'aggregate_root_id' => $aggregateRootId->toString(),
         ]);
         $repository->persist($message);
         $retrievedMessage = iterator_to_array($repository->retrieveAll($aggregateRootId), false)[0];
@@ -52,11 +53,11 @@ abstract class DoctrineIntegrationTestCase extends TestCase
     public function persisting_events_without_aggregate_root_ids()
     {
         $connection = $this->doctrineConnection();
-        $serializer = new ConstructingMessageSerializer(UuidAggregateRootId::class);
+        $serializer = new ConstructingMessageSerializer();
         $repository = $this->messageRepository($connection, $serializer, 'domain_messages');
         $eventId = Uuid::uuid4();
         $message = new Message(new TestEvent((new TestClock())->pointInTime()), [
-            'event_id' => $eventId,
+            'event_id' => $eventId->toString(),
         ]);
         $repository->persist($message);
         $persistedMessages = iterator_to_array($repository->retrieveEverything());
@@ -70,7 +71,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
     public function persisting_events_without_event_ids()
     {
         $connection = $this->doctrineConnection();
-        $serializer = new ConstructingMessageSerializer(UuidAggregateRootId::class);
+        $serializer = new ConstructingMessageSerializer();
         $repository = $this->messageRepository($connection, $serializer, 'domain_messages');
         $message = new Message(new TestEvent((new TestClock())->pointInTime()));
         $repository->persist($message);
