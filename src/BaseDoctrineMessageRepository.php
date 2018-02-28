@@ -5,7 +5,6 @@ namespace EventSauce\DoctrineMessageRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
 use EventSauce\EventSourcing\AggregateRootId;
-use EventSauce\EventSourcing\MessageDispatcher;
 use EventSauce\EventSourcing\MessageRepository;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
 use Generator;
@@ -44,6 +43,20 @@ abstract class BaseDoctrineMessageRepository implements MessageRepository
             ->where('aggregate_root_id = :aggregate_root_id')
             ->orderBy('time_of_recording', 'ASC')
             ->setParameter('aggregate_root_id', $id->toString())
+            ->execute();
+
+        while ($payload = $stm->fetchColumn()) {
+            yield from $this->serializer->unserializePayload(json_decode($payload, true));
+        }
+    }
+
+    public function retrieveEverything(): Generator
+    {
+        /** @var Statement $stm */
+        $stm = $this->connection->createQueryBuilder()
+            ->select('payload')
+            ->from($this->tableName)
+            ->orderBy('time_of_recording', 'ASC')
             ->execute();
 
         while ($payload = $stm->fetchColumn()) {

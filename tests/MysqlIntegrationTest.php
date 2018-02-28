@@ -3,6 +3,7 @@
 namespace EventSauce\DoctrineMessageRepository\Tests;
 
 use Doctrine\DBAL\Connection;
+use EventSauce\DoctrineMessageRepository\BaseDoctrineMessageRepository;
 use EventSauce\DoctrineMessageRepository\MysqlDoctrineMessageRepository;
 use EventSauce\EventSourcing\MessageDispatcher;
 use EventSauce\EventSourcing\MessageRepository;
@@ -19,7 +20,7 @@ class MysqlIntegrationTest extends DoctrineIntegrationTestCase
         Connection $connection,
         MessageSerializer $serializer,
         string $tableName
-    ): MessageRepository {
+    ): BaseDoctrineMessageRepository {
         return new MysqlDoctrineMessageRepository($connection, $serializer, $tableName);
     }
 }
