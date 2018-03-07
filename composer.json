@@ -13,7 +13,7 @@
         }
     },
     "require": {
-        "eventsauce/eventsauce": "@dev",
+        "eventsauce/eventsauce": "^0.1.0",
         "doctrine/dbal": "^2.5",
         "ramsey/uuid": "^3.6"
     },
