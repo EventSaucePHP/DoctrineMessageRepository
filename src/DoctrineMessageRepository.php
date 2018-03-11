@@ -13,7 +13,7 @@ use Generator;
 use function json_decode;
 use Ramsey\Uuid\Uuid;
 
-abstract class BaseDoctrineMessageRepository implements MessageRepository
+class DoctrineMessageRepository implements MessageRepository
 {
     /**
      * @var Connection
@@ -68,7 +68,10 @@ abstract class BaseDoctrineMessageRepository implements MessageRepository
         $this->connection->commit();
     }
 
-    abstract protected function baseSql(string $tableName): string;
+    protected function baseSql(string $tableName): string
+    {
+        return "INSERT INTO {$tableName} (event_id, event_type, aggregate_root_id, time_of_recording, payload) VALUES ";
+    }
 
     public function retrieveAll(AggregateRootId $id): Generator
     {

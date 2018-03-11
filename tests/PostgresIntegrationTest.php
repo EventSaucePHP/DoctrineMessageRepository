@@ -3,7 +3,7 @@
 namespace EventSauce\DoctrineMessageRepository\Tests;
 
 use Doctrine\DBAL\Connection;
-use EventSauce\DoctrineMessageRepository\BaseDoctrineMessageRepository;
+use EventSauce\DoctrineMessageRepository\DoctrineMessageRepository;
 use EventSauce\DoctrineMessageRepository\PostgresDoctrineMessageRepository;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
 
@@ -18,7 +18,7 @@ class PostgresIntegrationTest extends DoctrineIntegrationTestCase
         Connection $connection,
         MessageSerializer $serializer,
         string $tableName
-    ): BaseDoctrineMessageRepository {
+    ): DoctrineMessageRepository {
         return new PostgresDoctrineMessageRepository($connection, $serializer, $tableName);
     }
 }

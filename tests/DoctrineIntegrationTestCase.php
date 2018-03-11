@@ -4,7 +4,7 @@ namespace EventSauce\DoctrineMessageRepository\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use EventSauce\DoctrineMessageRepository\BaseDoctrineMessageRepository;
+use EventSauce\DoctrineMessageRepository\DoctrineMessageRepository;
 use EventSauce\EventSourcing\DefaultHeadersDecorator;
 use EventSauce\EventSourcing\DotSeparatedSnakeCaseInflector;
 use EventSauce\EventSourcing\Header;
@@ -20,7 +20,7 @@ use function iterator_to_array;
 abstract class DoctrineIntegrationTestCase extends TestCase
 {
     /**
-     * @var BaseDoctrineMessageRepository
+     * @var DoctrineMessageRepository
      */
     private $repository;
 
@@ -35,7 +35,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         Connection $connection,
         MessageSerializer $serializer,
         string $tableName
-    ): BaseDoctrineMessageRepository;
+    ): DoctrineMessageRepository;
 
     protected function setUp()
     {
