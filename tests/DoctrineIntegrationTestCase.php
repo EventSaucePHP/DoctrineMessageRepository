@@ -11,6 +11,7 @@ use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
+use EventSauce\EventSourcing\Time\Clock;
 use EventSauce\EventSourcing\Time\TestClock;
 use EventSauce\EventSourcing\UuidAggregateRootId;
 use PHPUnit\Framework\TestCase;
@@ -29,6 +30,11 @@ abstract class DoctrineIntegrationTestCase extends TestCase
      */
     private $decorator;
 
+    /**
+     * @var Clock
+     */
+    private $clock;
+
     abstract protected function connection(): Connection;
 
     abstract protected function messageRepository(
@@ -43,7 +49,8 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $connection = $this->connection();
         $connection->exec('TRUNCATE TABLE domain_messages');
         $serializer = new ConstructingMessageSerializer();
-        $this->decorator = new DefaultHeadersDecorator();
+        $this->clock = new TestClock();
+        $this->decorator = new DefaultHeadersDecorator(null, $this->clock);
         $this->repository = $this->messageRepository($connection, $serializer, 'domain_messages');
     } 
 
@@ -57,7 +64,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $this->assertEmpty(iterator_to_array($this->repository->retrieveAll($aggregateRootId)));
 
         $eventId = Uuid::uuid4()->toString();
-        $message = $this->decorator->decorate(new Message(new TestEvent((new TestClock())->pointInTime()), [
+        $message = $this->decorator->decorate(new Message(new TestEvent(), [
             Header::EVENT_ID          => $eventId,
             Header::AGGREGATE_ROOT_ID => $aggregateRootId->toString(),
         ]));
