@@ -2,16 +2,16 @@
 
 namespace EventSauce\DoctrineMessageRepository\Tests;
 
-use EventSauce\EventSourcing\Event;
+use EventSauce\EventSourcing\Serialization\SerializableEvent;
 
-class TestEvent implements Event
+class TestEvent implements SerializableEvent
 {
     public function toPayload(): array
     {
         return [];
     }
 
-    public static function fromPayload(array $payload): Event
+    public static function fromPayload(array $payload): SerializableEvent
     {
         return new TestEvent();
     }
