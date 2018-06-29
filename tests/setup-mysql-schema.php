@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS domain_messages (
     payload TEXT NOT NULL,
     INDEX aggregate_root_id (aggregate_root_id),
     INDEX time_of_recording (time_of_recording)
-) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE = InnoDB
 ");
