@@ -30,11 +30,17 @@ class DoctrineMessageRepository implements MessageRepository
      */
     protected $tableName;
 
-    public function __construct(Connection $connection, MessageSerializer $serializer, string $tableName)
+    /**
+     * @var int
+     */
+    private $jsonEncodeOptions;
+
+    public function __construct(Connection $connection, MessageSerializer $serializer, string $tableName, int $jsonEncodeOptions = 0)
     {
         $this->connection = $connection;
         $this->serializer = $serializer;
         $this->tableName = $tableName;
+        $this->jsonEncodeOptions = $jsonEncodeOptions;
     }
 
     public function persist(Message ... $messages)
@@ -57,7 +63,7 @@ class DoctrineMessageRepository implements MessageRepository
             $values[] = "(:{$eventIdColumn}, :{$eventTypeColumn}, :{$aggregateRootIdColumn}, :{$timeOfRecordingColumn}, :{$payloadColumn})";
             $params[$timeOfRecordingColumn] = $payload['headers'][Header::TIME_OF_RECORDING];
             $params[$eventIdColumn] = $payload['headers'][Header::EVENT_ID] = $payload['headers'][Header::EVENT_ID] ?? Uuid::uuid4()->toString();
-            $params[$payloadColumn] = json_encode($payload, JSON_PRETTY_PRINT);
+            $params[$payloadColumn] = json_encode($payload, $this->jsonEncodeOptions);
             $params[$eventTypeColumn] = $payload['headers'][Header::EVENT_TYPE];
             $params[$aggregateRootIdColumn] = $payload['headers'][Header::AGGREGATE_ROOT_ID] ?? null;
         }
