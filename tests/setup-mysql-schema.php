@@ -8,7 +8,7 @@ $connection->exec("
 CREATE TABLE IF NOT EXISTS domain_messages (
     event_id VARCHAR(36) NOT NULL,
     event_type VARCHAR(100) NOT NULL,
-    aggregate_root_id VARCHAR(36) NULL,
+    aggregate_root_id VARCHAR(36) NOT NULL,
     time_of_recording DATETIME(6) NOT NULL,
     payload JSON NOT NULL,
     INDEX aggregate_root_id (aggregate_root_id),
