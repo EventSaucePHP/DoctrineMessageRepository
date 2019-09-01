@@ -15,3 +15,4 @@ $connection->exec("CREATE TABLE domain_messages (
     payload JSON NOT NULL,
     PRIMARY KEY(event_id)
 )");
+//$connection->exec("CREATE ")

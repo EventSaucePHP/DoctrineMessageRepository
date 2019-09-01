@@ -3,10 +3,8 @@
 namespace EventSauce\DoctrineMessageRepository\Tests;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use EventSauce\DoctrineMessageRepository\DoctrineMessageRepository;
 use EventSauce\EventSourcing\DefaultHeadersDecorator;
-use EventSauce\EventSourcing\DotSeparatedSnakeCaseInflector;
 use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
@@ -52,7 +50,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $this->clock = new TestClock();
         $this->decorator = new DefaultHeadersDecorator(null, $this->clock);
         $this->repository = $this->messageRepository($connection, $serializer, 'domain_messages');
-    } 
+    }
 
     /**
      * @test
@@ -76,24 +74,12 @@ abstract class DoctrineIntegrationTestCase extends TestCase
     /**
      * @test
      */
-    public function persisting_events_without_aggregate_root_ids()
-    {
-        $eventId = Uuid::uuid4();
-        $message = $this->decorator->decorate(new Message(new TestEvent((new TestClock())->pointInTime()), [
-            Header::EVENT_ID => $eventId->toString(),
-        ]));
-        $this->repository->persist($message);
-        $persistedMessages = iterator_to_array($this->repository->retrieveEverything());
-        $this->assertCount(1, $persistedMessages);
-        $this->assertEquals($message, $persistedMessages[0]);
-    }
-
-    /**
-     * @test
-     */
     public function persisting_events_without_event_ids()
     {
-        $message = $this->decorator->decorate(new Message(new TestEvent((new TestClock())->pointInTime())));
+        $message = $this->decorator->decorate(new Message(
+            new TestEvent((new TestClock())->pointInTime()),
+            [Header::AGGREGATE_ROOT_ID => Uuid::uuid4()->toString()]
+        ));
         $this->repository->persist($message);
         $persistedMessages = iterator_to_array($this->repository->retrieveEverything());
         $this->assertCount(1, $persistedMessages);
