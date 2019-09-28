@@ -93,8 +93,17 @@ class DoctrineMessageRepository implements MessageRepository
             ->execute();
 
         while ($payload = $stm->fetchColumn()) {
-            yield from $this->serializer->unserializePayload(json_decode($payload, true));
+            $messages = $this->serializer->unserializePayload(json_decode($payload, true));
+
+            /* @var Message $message */
+            foreach ($messages as $message) {
+                yield $message;
+            }
         }
+
+        return isset($message)
+            ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0
+            : 0;
     }
 
     public function retrieveEverything(): Generator
