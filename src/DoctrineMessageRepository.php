@@ -62,11 +62,11 @@ class DoctrineMessageRepository implements MessageRepository
             $timeOfRecordingColumn = 'time_of_recording_' . $index;
             $payloadColumn = 'payload_' . $index;
             $values[] = "(:{$eventIdColumn}, :{$eventTypeColumn}, :{$aggregateRootIdColumn}, :{$aggregateRootVersionColumn}, :{$timeOfRecordingColumn}, :{$payloadColumn})";
-            $params[$aggregateRootVersionColumn] = $params['headers'][Header::AGGREGATE_ROOT_VERSION];
+            $params[$aggregateRootVersionColumn] = $params['headers'][Header::AGGREGATE_ROOT_VERSION] ?? 0;
             $params[$timeOfRecordingColumn] = $payload['headers'][Header::TIME_OF_RECORDING];
             $params[$eventIdColumn] = $payload['headers'][Header::EVENT_ID] = $payload['headers'][Header::EVENT_ID] ?? Uuid::uuid4()->toString();
             $params[$payloadColumn] = json_encode($payload, $this->jsonEncodeOptions);
-            $params[$eventTypeColumn] = $payload['headers'][Header::EVENT_TYPE];
+            $params[$eventTypeColumn] = $payload['headers'][Header::EVENT_TYPE] ?? null;
             $params[$aggregateRootIdColumn] = $payload['headers'][Header::AGGREGATE_ROOT_ID] ?? null;
         }
 
@@ -88,7 +88,7 @@ class DoctrineMessageRepository implements MessageRepository
             ->select('payload')
             ->from($this->tableName)
             ->where('aggregate_root_id = :aggregate_root_id')
-            ->orderBy('time_of_recording', 'ASC')
+            ->orderBy('aggregate_root_version', 'ASC')
             ->setParameter('aggregate_root_id', $id->toString())
             ->execute();
 
