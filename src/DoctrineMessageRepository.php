@@ -58,9 +58,11 @@ class DoctrineMessageRepository implements MessageRepository
             $eventIdColumn = 'event_id_' . $index;
             $aggregateRootIdColumn = 'aggregate_root_id_' . $index;
             $eventTypeColumn = 'event_type_' . $index;
+            $aggregateRootVersionColumn = 'aggregate_root_version_' . $index;
             $timeOfRecordingColumn = 'time_of_recording_' . $index;
             $payloadColumn = 'payload_' . $index;
-            $values[] = "(:{$eventIdColumn}, :{$eventTypeColumn}, :{$aggregateRootIdColumn}, :{$timeOfRecordingColumn}, :{$payloadColumn})";
+            $values[] = "(:{$eventIdColumn}, :{$eventTypeColumn}, :{$aggregateRootIdColumn}, :{$aggregateRootVersionColumn}, :{$timeOfRecordingColumn}, :{$payloadColumn})";
+            $params[$aggregateRootVersionColumn] = $params['headers'][Header::AGGREGATE_ROOT_VERSION];
             $params[$timeOfRecordingColumn] = $payload['headers'][Header::TIME_OF_RECORDING];
             $params[$eventIdColumn] = $payload['headers'][Header::EVENT_ID] = $payload['headers'][Header::EVENT_ID] ?? Uuid::uuid4()->toString();
             $params[$payloadColumn] = json_encode($payload, $this->jsonEncodeOptions);
@@ -76,7 +78,7 @@ class DoctrineMessageRepository implements MessageRepository
 
     protected function baseSql(string $tableName): string
     {
-        return "INSERT INTO {$tableName} (event_id, event_type, aggregate_root_id, time_of_recording, payload) VALUES ";
+        return "INSERT INTO {$tableName} (event_id, event_type, aggregate_root_id, aggregate_root_version, time_of_recording, payload) VALUES ";
     }
 
     public function retrieveAll(AggregateRootId $id): Generator
