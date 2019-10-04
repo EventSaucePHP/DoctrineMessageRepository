@@ -65,10 +65,13 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $message = $this->decorator->decorate(new Message(new TestEvent(), [
             Header::EVENT_ID          => $eventId,
             Header::AGGREGATE_ROOT_ID => $aggregateRootId->toString(),
+            Header::AGGREGATE_ROOT_VERSION => 10,
         ]));
         $this->repository->persist($message);
-        $retrievedMessage = iterator_to_array($this->repository->retrieveAll($aggregateRootId), false)[0];
+        $generator = $this->repository->retrieveAll($aggregateRootId);
+        $retrievedMessage = iterator_to_array($generator, false)[0];
         $this->assertEquals($message, $retrievedMessage);
+        $this->assertEquals(10, $generator->getReturn());
     }
 
     /**
@@ -84,5 +87,31 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $persistedMessages = iterator_to_array($this->repository->retrieveEverything());
         $this->assertCount(1, $persistedMessages);
         $this->assertNotEquals($message, $persistedMessages[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function retrieving_messages_after_a_specific_version()
+    {
+        $aggregateRootId = UuidAggregateRootId::create();
+        $messages = [];
+        $messages[] = $this->decorator->decorate(new Message(new TestEvent(), [
+            Header::EVENT_ID          => Uuid::uuid4()->toString(),
+            Header::AGGREGATE_ROOT_ID => $aggregateRootId->toString(),
+            Header::AGGREGATE_ROOT_VERSION => 10,
+        ]));
+        $messages[] = $this->decorator->decorate(new Message(new TestEvent(), [
+            Header::EVENT_ID          => $lastEventId = Uuid::uuid4()->toString(),
+            Header::AGGREGATE_ROOT_ID => $aggregateRootId->toString(),
+            Header::AGGREGATE_ROOT_VERSION => 11,
+        ]));
+        $this->repository->persist(...$messages);
+        $generator = $this->repository->retrieveAllAfterVersion($aggregateRootId, 10);
+        /** @var Message[] $messages */
+        $messages = iterator_to_array($generator);
+        $this->assertEquals(11, $generator->getReturn());
+        $this->assertCount(1, $messages);
+        $this->assertEquals($lastEventId, $messages[0]->header(Header::EVENT_ID));
     }
 }

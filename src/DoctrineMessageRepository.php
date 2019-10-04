@@ -3,7 +3,7 @@
 namespace EventSauce\DoctrineMessageRepository;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Driver\Statement;
 use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
@@ -62,7 +62,7 @@ class DoctrineMessageRepository implements MessageRepository
             $timeOfRecordingColumn = 'time_of_recording_' . $index;
             $payloadColumn = 'payload_' . $index;
             $values[] = "(:{$eventIdColumn}, :{$eventTypeColumn}, :{$aggregateRootIdColumn}, :{$aggregateRootVersionColumn}, :{$timeOfRecordingColumn}, :{$payloadColumn})";
-            $params[$aggregateRootVersionColumn] = $params['headers'][Header::AGGREGATE_ROOT_VERSION] ?? 0;
+            $params[$aggregateRootVersionColumn] = $payload['headers'][Header::AGGREGATE_ROOT_VERSION] ?? 0;
             $params[$timeOfRecordingColumn] = $payload['headers'][Header::TIME_OF_RECORDING];
             $params[$eventIdColumn] = $payload['headers'][Header::EVENT_ID] = $payload['headers'][Header::EVENT_ID] ?? Uuid::uuid4()->toString();
             $params[$payloadColumn] = json_encode($payload, $this->jsonEncodeOptions);
@@ -83,7 +83,6 @@ class DoctrineMessageRepository implements MessageRepository
 
     public function retrieveAll(AggregateRootId $id): Generator
     {
-        /** @var Statement $stm */
         $stm = $this->connection->createQueryBuilder()
             ->select('payload')
             ->from($this->tableName)
@@ -92,18 +91,7 @@ class DoctrineMessageRepository implements MessageRepository
             ->setParameter('aggregate_root_id', $id->toString())
             ->execute();
 
-        while ($payload = $stm->fetchColumn()) {
-            $messages = $this->serializer->unserializePayload(json_decode($payload, true));
-
-            /* @var Message $message */
-            foreach ($messages as $message) {
-                yield $message;
-            }
-        }
-
-        return isset($message)
-            ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0
-            : 0;
+        return $this->yieldMessagesForResult($stm);
     }
 
     public function retrieveEverything(): Generator
@@ -118,5 +106,41 @@ class DoctrineMessageRepository implements MessageRepository
         while ($payload = $stm->fetchColumn()) {
             yield from $this->serializer->unserializePayload(json_decode($payload, true));
         }
+    }
+
+    public function retrieveAllAfterVersion(AggregateRootId $id, int $aggregateRootVersion): Generator
+    {
+        /** @var Statement $stm */
+        $stm = $this->connection->createQueryBuilder()
+            ->select('payload')
+            ->from($this->tableName)
+            ->where('aggregate_root_id = :aggregate_root_id')
+            ->where('aggregate_root_version > :aggregate_root_version')
+            ->orderBy('aggregate_root_version', 'ASC')
+            ->setParameter('aggregate_root_id', $id->toString())
+            ->setParameter('aggregate_root_version', $aggregateRootVersion)
+            ->execute();
+
+        return $this->yieldMessagesForResult($stm);
+    }
+
+    /**
+     * @param Statement $stm
+     * @return Generator|int
+     */
+    private function yieldMessagesForResult(Statement $stm)
+    {
+        while ($payload = $stm->fetchColumn()) {
+            $messages = $this->serializer->unserializePayload(json_decode($payload, true));
+
+            /* @var Message $message */
+            foreach ($messages as $message) {
+                yield $message;
+            }
+        }
+
+        return isset($message)
+            ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0
+            : 0;
     }
 }
