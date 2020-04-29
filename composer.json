@@ -15,7 +15,7 @@
     "require": {
         "eventsauce/eventsauce": "^0.7.0 || ^0.8.0",
         "doctrine/dbal": "^2.5",
-        "ramsey/uuid": "^3.6",
+        "ramsey/uuid": "^3.6|^4.0",
         "ext-json": "*"
     },
     "require-dev": {
