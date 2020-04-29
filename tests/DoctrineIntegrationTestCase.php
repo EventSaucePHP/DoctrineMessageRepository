@@ -41,7 +41,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         string $tableName
     ): DoctrineMessageRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $connection = $this->connection();
