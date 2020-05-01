@@ -70,7 +70,7 @@ class DoctrineMessageRepository implements MessageRepository
             $params[$aggregateRootIdColumn] = $payload['headers'][Header::AGGREGATE_ROOT_ID] ?? null;
         }
 
-        $sql .= join(', ', $values);
+        $sql .= implode(', ', $values);
         $this->connection->beginTransaction();
         $this->connection->prepare($sql)->execute($params);
         $this->connection->commit();
