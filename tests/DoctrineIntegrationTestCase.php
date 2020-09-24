@@ -94,8 +94,16 @@ abstract class DoctrineIntegrationTestCase extends TestCase
      */
     public function retrieving_messages_after_a_specific_version()
     {
-        $aggregateRootId = UuidAggregateRootId::create();
         $messages = [];
+
+        $aggregateRootIdConcurrent = UuidAggregateRootId::create();
+        $messages[] = $this->decorator->decorate(new Message(new TestEvent(), [
+            Header::EVENT_ID          => Uuid::uuid4()->toString(),
+            Header::AGGREGATE_ROOT_ID => $aggregateRootIdConcurrent->toString(),
+            Header::AGGREGATE_ROOT_VERSION => 15,
+        ]));
+
+        $aggregateRootId = UuidAggregateRootId::create();
         $messages[] = $this->decorator->decorate(new Message(new TestEvent(), [
             Header::EVENT_ID          => Uuid::uuid4()->toString(),
             Header::AGGREGATE_ROOT_ID => $aggregateRootId->toString(),
@@ -106,7 +114,9 @@ abstract class DoctrineIntegrationTestCase extends TestCase
             Header::AGGREGATE_ROOT_ID => $aggregateRootId->toString(),
             Header::AGGREGATE_ROOT_VERSION => 11,
         ]));
+
         $this->repository->persist(...$messages);
+
         $generator = $this->repository->retrieveAllAfterVersion($aggregateRootId, 10);
         /** @var Message[] $messages */
         $messages = iterator_to_array($generator);

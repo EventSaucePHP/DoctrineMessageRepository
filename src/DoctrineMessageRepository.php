@@ -115,7 +115,7 @@ class DoctrineMessageRepository implements MessageRepository
             ->select('payload')
             ->from($this->tableName)
             ->where('aggregate_root_id = :aggregate_root_id')
-            ->where('aggregate_root_version > :aggregate_root_version')
+            ->andWhere('aggregate_root_version > :aggregate_root_version')
             ->orderBy('aggregate_root_version', 'ASC')
             ->setParameter('aggregate_root_id', $id->toString())
             ->setParameter('aggregate_root_version', $aggregateRootVersion)
