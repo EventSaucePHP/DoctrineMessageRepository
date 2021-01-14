@@ -28,6 +28,7 @@ before_script:
     - php tests/setup-postgres-schema.php
 
 script:
+    - vendor/bin/psalm
     - vendor/bin/phpunit --coverage-text
 
 after_script:

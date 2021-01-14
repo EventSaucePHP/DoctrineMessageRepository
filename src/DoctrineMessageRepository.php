@@ -3,6 +3,7 @@
 namespace EventSauce\DoctrineMessageRepository;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement;
 use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Header;
@@ -10,6 +11,8 @@ use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageRepository;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
 use Generator;
+use function assert;
+use function is_int;
 use function json_decode;
 use Ramsey\Uuid\Uuid;
 
@@ -81,6 +84,7 @@ class DoctrineMessageRepository implements MessageRepository
         return "INSERT INTO {$tableName} (event_id, event_type, aggregate_root_id, aggregate_root_version, time_of_recording, payload) VALUES ";
     }
 
+    /** @psalm-return Generator<Message> */
     public function retrieveAll(AggregateRootId $id): Generator
     {
         $stm = $this->connection->createQueryBuilder()
@@ -91,26 +95,28 @@ class DoctrineMessageRepository implements MessageRepository
             ->setParameter('aggregate_root_id', $id->toString())
             ->execute();
 
+        assert(! is_int($stm));
+
         return $this->yieldMessagesForResult($stm);
     }
 
+    /** @psalm-return Generator<Message> */
     public function retrieveEverything(): Generator
     {
-        /** @var Statement $stm */
         $stm = $this->connection->createQueryBuilder()
             ->select('payload')
             ->from($this->tableName)
             ->orderBy('time_of_recording', 'ASC')
             ->execute();
 
-        while ($payload = $stm->fetchColumn()) {
-            yield from $this->serializer->unserializePayload(json_decode($payload, true));
-        }
+        assert(! is_int($stm));
+
+        return $this->yieldMessagesForResult($stm);
     }
 
+    /** @psalm-return Generator<Message> */
     public function retrieveAllAfterVersion(AggregateRootId $id, int $aggregateRootVersion): Generator
     {
-        /** @var Statement $stm */
         $stm = $this->connection->createQueryBuilder()
             ->select('payload')
             ->from($this->tableName)
@@ -121,26 +127,28 @@ class DoctrineMessageRepository implements MessageRepository
             ->setParameter('aggregate_root_version', $aggregateRootVersion)
             ->execute();
 
+        assert(! is_int($stm));
+
         return $this->yieldMessagesForResult($stm);
     }
 
     /**
-     * @param Statement $stm
-     * @return Generator|int
+     * @param Statement|ResultStatement $stm
+     * @return Generator
+     *
+     * @psalm-return Generator<Message>
      */
-    private function yieldMessagesForResult(Statement $stm)
+    private function yieldMessagesForResult($stm)
     {
+        /** @psalm-suppress DeprecatedMethod remove fetchColumn call when bumping to `doctrine/dbal:^3.0` */
         while ($payload = $stm->fetchColumn()) {
             $messages = $this->serializer->unserializePayload(json_decode($payload, true));
 
-            /* @var Message $message */
             foreach ($messages as $message) {
+                assert($message instanceof Message);
+
                 yield $message;
             }
         }
-
-        return isset($message)
-            ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0
-            : 0;
     }
 }
