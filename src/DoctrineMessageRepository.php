@@ -46,7 +46,7 @@ class DoctrineMessageRepository implements MessageRepository
         $this->jsonEncodeOptions = $jsonEncodeOptions;
     }
 
-    public function persist(Message ... $messages)
+    public function persist(Message ... $messages): void
     {
         if (count($messages) === 0) {
             return;
@@ -150,5 +150,9 @@ class DoctrineMessageRepository implements MessageRepository
                 yield $message;
             }
         }
+
+        return isset($message)
+            ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0
+            : 0;
     }
 }
