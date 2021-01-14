@@ -46,6 +46,7 @@ jobs:
       mysql:
         image: 'mysql:8'
         env:
+          MYSQL_ROOT_PASSWORD: 'root_password'
           MYSQL_DATABASE: 'domain_messages'
           MYSQL_USER: 'username'
           MYSQL_PASSWORD: 'password'
