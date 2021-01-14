@@ -36,6 +36,8 @@ jobs:
           POSTGRES_DB: 'domain_messages'
           POSTGRES_USER: 'username'
           POSTGRES_PASSWORD: 'password'
+        ports:
+          - '5432:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -47,6 +49,8 @@ jobs:
           MYSQL_DATABASE: 'domain_messages'
           MYSQL_USER: 'username'
           MYSQL_PASSWORD: 'password'
+        ports:
+          - '3306:3306'
 
     steps:
       - name: "Checkout"
