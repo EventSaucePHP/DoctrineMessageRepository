@@ -1,5 +1,15 @@
 ## Changelog
 
+## UNRELEASED
+
+## Changed
+
+- Upgraded minimum PHP version
+
+## Fixed
+
+- Type error related to Doctrine, see #10
+
 ## 0.8.2 - 2020-10-02
 
 ## Fixed
