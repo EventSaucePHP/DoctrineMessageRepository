@@ -6,6 +6,6 @@ return DriverManager::getConnection([
     'dbname' => 'domain_messages',
     'user' => 'username',
     'password' => 'password',
-    'host' => '127.0.0.1',
+    'host' => 'pgsql',
     'driver' => 'pdo_pgsql',
 ]);

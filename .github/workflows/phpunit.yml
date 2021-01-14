@@ -28,6 +28,26 @@ jobs:
             dependencies: "highest"
             operating-system: "ubuntu-latest"
 
+    # https://docs.github.com/en/free-pro-team@latest/actions/guides/creating-postgresql-service-containers
+    services:
+      pgsql:
+        image: 'postgres:13'
+        env:
+          POSTGRES_DB: 'domain_messages'
+          POSTGRES_USER: 'username'
+          POSTGRES_PASSWORD: 'password'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: 'mysql:8'
+        env:
+          MYSQL_DATABASE: 'domain_messages'
+          MYSQL_USER: 'username'
+          MYSQL_PASSWORD: 'password'
+
     steps:
       - name: "Checkout"
         uses: "actions/checkout@v2"
@@ -60,6 +80,13 @@ jobs:
       - name: "Install locked dependencies"
         if: ${{ matrix.dependencies == 'locked' }}
         run: "composer install --no-interaction --no-progress --no-suggest --ignore-platform-req=php"
+
+      - name: "Configure databases"
+        run: |
+          php tests/wait-for-connection.php pgsql
+          php tests/wait-for-connection.php mysql
+          php tests/setup-mysql-schema.php
+          php tests/setup-postgres-schema.php
 
       - name: "Tests"
         run: "vendor/bin/phpunit"
