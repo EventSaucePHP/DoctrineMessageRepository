@@ -502,12 +502,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EventSaucePHP/EventSauce.git",
-                "reference": "75e88826de6a91e7903d4bb3d39c79286462e140"
+                "reference": "f08134b0574739aab2e82f587a2f86556fe5efee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EventSaucePHP/EventSauce/zipball/75e88826de6a91e7903d4bb3d39c79286462e140",
-                "reference": "75e88826de6a91e7903d4bb3d39c79286462e140",
+                "url": "https://api.github.com/repos/EventSaucePHP/EventSauce/zipball/f08134b0574739aab2e82f587a2f86556fe5efee",
+                "reference": "f08134b0574739aab2e82f587a2f86556fe5efee",
                 "shasum": ""
             },
             "require": {
@@ -557,7 +557,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-03-30T20:51:20+00:00"
+            "time": "2021-03-31T09:37:17+00:00"
         },
         {
             "name": "ramsey/collection",

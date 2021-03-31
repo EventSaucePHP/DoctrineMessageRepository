@@ -69,7 +69,7 @@ class DoctrineMessageRepository implements MessageRepository
             $aggregateRootVersionColumn = 'aggregate_root_version_' . $index;
             $payloadColumn = 'payload_' . $index;
             $values[] = "(:{$eventIdColumn}, :{$eventTypeColumn}, :{$aggregateRootIdColumn}, :{$aggregateRootVersionColumn}, :{$payloadColumn})";
-            $params[$aggregateRootVersionColumn] = $payload['headers'][Header::AGGREGATE_ROOT_VERSION] ?? 0;
+            $params[$aggregateRootVersionColumn] = (int) ($payload['headers'][Header::AGGREGATE_ROOT_VERSION] ?? 0);
             $params[$eventIdColumn] = $payload['headers'][Header::EVENT_ID] = $payload['headers'][Header::EVENT_ID] ?? Uuid::uuid4(
                 )->toString();
             $params[$payloadColumn] = json_encode($payload, $this->jsonEncodeOptions);
@@ -79,7 +79,7 @@ class DoctrineMessageRepository implements MessageRepository
 
         $sql .= implode(', ', $values);
         $this->connection->beginTransaction();
-        $this->connection->prepare($sql)->execute($params)->rowCount();
+        $this->connection->prepare($sql)->execute($params);
         $this->connection->commit();
     }
 
@@ -135,19 +135,22 @@ class DoctrineMessageRepository implements MessageRepository
     }
 
     /**
-     * @param Statement|Result $stm
-     * @return Generator
-     *
      * @psalm-return Generator<Message>
+     * @psalm-suppress MissingParamType the return interface was renamed, which makes it impossible to add typing for
+     *                 both. The solution here is to omit type information so the responses from both major versions
+     *                 of Doctrine are supported.
      */
-    private function yieldMessagesForResult($stm)
+    private function yieldMessagesForResult($stm): Generator
     {
-        /** @psalm-suppress DeprecatedMethod remove fetchColumn call when bumping to `doctrine/dbal:^3.0` */
+        $message = null;
+
         while ($payload = $stm->fetchAssociative()) {
-            $message = $this->serializer->unserializePayload(json_decode($payload['payload'], true));
+            /** @var array<string, mixed> $payload */
+            $payload = json_decode($payload['payload'], true);
+            $message = $this->serializer->unserializePayload($payload);
             yield $message;
         }
 
-        return isset($message) ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0 : 0;
+        return $message instanceof Message ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0 : 0;
     }
 }

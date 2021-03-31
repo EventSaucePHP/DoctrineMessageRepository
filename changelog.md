@@ -1,5 +1,11 @@
 ## Changelog
 
+## 1.0.0 - UNRELEASED
+
+## Changes
+
+- Upgraded to EventSauce 1.0UnableToRetrieveMessages
+
 ## 0.8.3 - 2021-01-14
 
 ## Changed
