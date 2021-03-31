@@ -10,15 +10,16 @@
         }
     ],
     "require": {
-        "php": "^7.3.0 || ^8.0.0",
+        "php": "^8.0.0",
         "ext-json": "*",
-        "doctrine/dbal": "^2.12.1",
-        "eventsauce/eventsauce": "^0.7.0 || ^0.8.0",
+        "doctrine/dbal": "^2.12.1 || ^3.0.0",
+        "eventsauce/eventsauce": "dev-version/1.0.0",
         "ramsey/uuid": "^3.6 || ^4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5 || ^9",
-        "vimeo/psalm": "^4.4"
+        "vimeo/psalm": "^4.4",
+        "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {
@@ -28,11 +29,6 @@
     "autoload-dev": {
         "psr-4": {
             "EventSauce\\DoctrineMessageRepository\\Tests\\": "tests"
-        }
-    },
-    "config": {
-        "platform": {
-            "php": "7.3.0"
         }
     }
 }

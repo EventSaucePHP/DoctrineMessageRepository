@@ -12,7 +12,6 @@ $connection->exec("CREATE TABLE domain_messages (
     event_type VARCHAR(255) NOT NULL,
     aggregate_root_id UUID NOT NULL,
     aggregate_root_version INTEGER NOT NULL,
-    time_of_recording TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     payload JSON NOT NULL,
     PRIMARY KEY(event_id)
 )");

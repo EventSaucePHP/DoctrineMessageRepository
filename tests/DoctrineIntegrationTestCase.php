@@ -5,13 +5,13 @@ namespace EventSauce\DoctrineMessageRepository\Tests;
 use Doctrine\DBAL\Connection;
 use EventSauce\DoctrineMessageRepository\DoctrineMessageRepository;
 use EventSauce\EventSourcing\DefaultHeadersDecorator;
+use EventSauce\EventSourcing\DotSeparatedSnakeCaseInflector;
 use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
-use EventSauce\EventSourcing\Time\Clock;
-use EventSauce\EventSourcing\Time\TestClock;
-use EventSauce\EventSourcing\UuidAggregateRootId;
+use EventSauce\Clock\Clock;
+use EventSauce\Clock\TestClock;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use function iterator_to_array;
@@ -64,12 +64,13 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $eventId = Uuid::uuid4()->toString();
         $message = $this->decorator->decorate(new Message(new TestEvent(), [
             Header::EVENT_ID          => $eventId,
-            Header::AGGREGATE_ROOT_ID => $aggregateRootId->toString(),
+            Header::AGGREGATE_ROOT_ID => $aggregateRootId,
+            Header::AGGREGATE_ROOT_ID_TYPE => (new DotSeparatedSnakeCaseInflector())->instanceToType($aggregateRootId),
             Header::AGGREGATE_ROOT_VERSION => 10,
         ]));
         $this->repository->persist($message);
         $generator = $this->repository->retrieveAll($aggregateRootId);
-        $retrievedMessage = iterator_to_array($generator, false)[0];
+        $retrievedMessage = iterator_to_array($generator, false)[0] ?? null;
         $this->assertEquals($message, $retrievedMessage);
         $this->assertEquals(10, $generator->getReturn());
     }
@@ -80,7 +81,7 @@ abstract class DoctrineIntegrationTestCase extends TestCase
     public function persisting_events_without_event_ids()
     {
         $message = $this->decorator->decorate(new Message(
-            new TestEvent((new TestClock())->pointInTime()),
+            new TestEvent(),
             [Header::AGGREGATE_ROOT_ID => Uuid::uuid4()->toString()]
         ));
         $this->repository->persist($message);

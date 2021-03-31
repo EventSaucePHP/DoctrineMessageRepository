@@ -1,8 +1,10 @@
-version: "2"
+version: "3"
 services:
     mysql:
+        platform: linux/x86_64
+        image: mysql:8.0.23
+        command: --default-authentication-plugin=mysql_native_password
         restart: always
-        image: mysql/mysql-server:5.7
         environment:
             MYSQL_ROOT_PASSWORD: "root_password"
             MYSQL_DATABASE: "domain_messages"
@@ -12,10 +14,11 @@ services:
         ports:
             - "3306:3306"
     postgres:
+        platform: linux/x86_64
         image: postgres:9.6-alpine
         environment:
             POSTGRES_DB: "domain_messages"
             POSTGRES_USER: "username"
             POSTGRES_PASSWORD: "password"
         ports:
-                    - "5432:5432"
+            - "5432:5432"

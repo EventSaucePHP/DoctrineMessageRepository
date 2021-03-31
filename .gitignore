@@ -1,2 +1,3 @@
-vendor
-coverage
+/vendor
+/coverage
+/.phpunit.result.cache
