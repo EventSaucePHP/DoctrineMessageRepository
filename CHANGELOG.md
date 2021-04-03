@@ -9,25 +9,21 @@ This changelog follows [the Keep a Changelog standard](https://keepachangelog.co
 ## [0.8.3 (2021-01-14)](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.8.2...0.8.3)
 
 ### Changed
-
 - Upgraded minimum PHP version ([#11](https://github.com/EventSaucePHP/DoctrineMessageRepository/pull/11))
 
 ### Fixed
-
 - Type error related to Doctrine ([#10](https://github.com/EventSaucePHP/DoctrineMessageRepository/pull/10))
 
 
 ## [0.8.2 (2020-10-02)](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.8.1...0.8.2)
 
 ### Fixed
-
 - Retrieving additional events for a snapshot is now limited by the aggregate root ID ([#7](https://github.com/EventSaucePHP/DoctrineMessageRepository/pull/7))
 
 
 ## [0.8.1 (2020-05-01)](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.8.0...0.8.1)
 
 ### Changed
-
 - Update dependencies ([#6](https://github.com/EventSaucePHP/DoctrineMessageRepository/pull/6))
 
 
