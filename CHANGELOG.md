@@ -3,7 +3,7 @@
 This changelog follows [the Keep a Changelog standard](https://keepachangelog.com).
 
 
-## [Unreleased](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.8.3...0.8.x)
+## [Unreleased](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.8.3...master)
 
 
 ## [0.8.3 (2021-01-14)](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.8.2...0.8.3)
@@ -81,7 +81,7 @@ This changelog follows [the Keep a Changelog standard](https://keepachangelog.co
 ## [0.3.0 (2018-03-23)](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.2.0...0.3.0)
 
 ### Changed
-- Update to EventSauce 0.3.0 ([1b7a5b6](https://github.com/EventSaucePHP/DoctrineMessageRepository/commit/1b7a5b6631eee751d43db0773f00ed560f1a017c
+- Update to EventSauce 0.3.0 ([1b7a5b6](https://github.com/EventSaucePHP/DoctrineMessageRepository/commit/1b7a5b6631eee751d43db0773f00ed560f1a017c))
 
 
 ## [0.2.0 (2018-03-13)](https://github.com/EventSaucePHP/DoctrineMessageRepository/compare/0.1.0...0.2.0)
