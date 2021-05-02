@@ -13,8 +13,8 @@
         "php": "^8.0.0",
         "ext-json": "*",
         "doctrine/dbal": "^2.12.1 || ^3.0.0",
-        "eventsauce/eventsauce": "dev-version/1.0.0",
-        "ramsey/uuid": "^3.6 || ^4.0"
+        "eventsauce/eventsauce": "^1.0",
+        "ramsey/uuid": "^4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5 || ^9",
