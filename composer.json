@@ -13,7 +13,7 @@
         "php": "^7.3.0 || ^8.0.0",
         "ext-json": "*",
         "doctrine/dbal": "^2.12.1",
-        "eventsauce/eventsauce": "^0.7.0 || ^0.8.0",
+        "eventsauce/eventsauce": "^0.7.0 || ^0.8.0 || ^1.0.0",
         "ramsey/uuid": "^3.6 || ^4.0"
     },
     "require-dev": {
