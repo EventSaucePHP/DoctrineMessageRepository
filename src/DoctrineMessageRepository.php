@@ -142,13 +142,9 @@ class DoctrineMessageRepository implements MessageRepository
     {
         /** @psalm-suppress DeprecatedMethod remove fetchColumn call when bumping to `doctrine/dbal:^3.0` */
         while ($payload = $stm->fetchColumn()) {
-            $messages = $this->serializer->unserializePayload(json_decode($payload, true));
-
-            foreach ($messages as $message) {
-                assert($message instanceof Message);
-
-                yield $message;
-            }
+            $message = $this->serializer->unserializePayload(json_decode($payload, true));
+            assert($message instanceof Message);
+            yield $message;
         }
 
         return isset($message)
