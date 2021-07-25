@@ -1,6 +1,6 @@
 # Doctrine Message Repository for EventSauce
 
-
+> ⚠️ This repository is abandoned in favor of the newer [`eventsauce/message-repository-for-doctrine`](https://github.com/EventSaucePHP/MessageRepositoryForDoctrine) library.
 
 ```php
 use Doctrine\DBAL\Connection;
